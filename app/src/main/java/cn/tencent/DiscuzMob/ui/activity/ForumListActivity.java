@@ -308,7 +308,7 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
 
                 break;
 
-            case R.id. ll_vote:
+            case R.id.ll_vote:
 
                 backgroundAlpha(1f);
                 if (mPopWindow != null) {
@@ -392,9 +392,9 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
 
     private void getCollectionData() {
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
-                .url(AppNetConfig.MYFAV)
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
+                        .url(AppNetConfig.MYFAV)
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -534,14 +534,14 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
     private void CancelCollection() {
 //        String formhash = CacheUtils.getString(this, "formhash");
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                .url(AppNetConfig.UNCOLLECTION + fid)
-                .post(new MultipartBuilder("----kDdwDwoddGegowwdSmoqdaAesgjk")
-                        .type(MultipartBuilder.FORM)
-                        .addFormDataPart("formhash", formhash)
-                        .addFormDataPart("deletesubmit", "true")
-                        .build())
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                        .url(AppNetConfig.UNCOLLECTION + fid)
+                        .post(new MultipartBuilder("----kDdwDwoddGegowwdSmoqdaAesgjk")
+                                .type(MultipartBuilder.FORM)
+                                .addFormDataPart("formhash", formhash)
+                                .addFormDataPart("deletesubmit", "true")
+                                .build())
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -611,9 +611,9 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
         final String fid = getIntent().getStringExtra("fid");
         LogUtils.i(AppNetConfig.COLLECTION_BANKUAI + "&id=" + fid + "&formhash=" + formhash);
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                .url(AppNetConfig.COLLECTION_BANKUAI + "&id=" + fid + "&formhash=" + formhash)
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                        .url(AppNetConfig.COLLECTION_BANKUAI + "&id=" + fid + "&formhash=" + formhash)
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -685,9 +685,9 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
             page = 1;
             Log.e("TAG", "板块详情的url=" + AppNetConfig.BASEURL + "?version=5&module=forumdisplay&submodule=checkpost&fid=" + fid + "&width=160&height=120&page=" + page + "" + "&submodule=checkpost&smiley=no&convimg=1&mobiletype=Android" + type);
             RedNet.mHttpClient.newCall(new Request.Builder()
-                    .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                    .url(AppNetConfig.BASEURL + "?version=5&module=forumdisplay&submodule=checkpost&fid=" + fid + "&width=160&height=120&page=" + page + "" + "&submodule=checkpost&smiley=no&convimg=1&mobiletype=Android" + type)
-                    .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                            .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                            .url(AppNetConfig.BASEURL + "?version=5&module=forumdisplay&submodule=checkpost&fid=" + fid + "&width=160&height=120&page=" + page + "" + "&submodule=checkpost&smiley=no&convimg=1&mobiletype=Android" + type)
+                            .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                     .enqueue(new com.squareup.okhttp.Callback() {
                         @Override
                         public void onFailure(Request request, IOException e) {
@@ -712,7 +712,9 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
                                 strings.clear();
                                 if (null != Variables.get("groupiconid")) {
                                     for (Map.Entry<String, Object> entry : ((JSONObject) Variables.get("groupiconid")).entrySet()) {
-                                        strings.put(entry.getKey(), entry.getValue().toString());
+                                        if (entry.getValue() != null) {
+                                            strings.put(entry.getKey(), entry.getValue().toString());
+                                        }
                                     }
                                 }
                                 JSONObject threadtypes = Variables.getJSONObject("threadsorts");
@@ -859,9 +861,9 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
             ++page;
 //            mTip.setDisplayedChild(1);
             RedNet.mHttpClient.newCall(new Request.Builder()
-                    .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                    .url(AppNetConfig.BASEURL + "?version=5&module=forumdisplay&fid=" + fid + "&width=160&height=120&page=" + page + "" + "&submodule=checkpost&smiley=no&convimg=1&mobiletype=Android" + type)
-                    .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                            .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                            .url(AppNetConfig.BASEURL + "?version=5&module=forumdisplay&fid=" + fid + "&width=160&height=120&page=" + page + "" + "&submodule=checkpost&smiley=no&convimg=1&mobiletype=Android" + type)
+                            .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                     .enqueue(new com.squareup.okhttp.Callback() {
                         @Override
                         public void onFailure(Request request, IOException e) {
@@ -899,10 +901,10 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
                         }
                     });
             RedNet.mHttpClient.newCall(new Request.Builder()
-                    .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                    .url(AppNetConfig.BASEURL + "?version=5&module=forumdisplay&fid=" + fid + "&width=160&height=120&page=" + page + "" + "&submodule=checkpost&smiley=no&convimg=1&mobiletype=Android" + type)
-                    .cacheControl(new CacheControl.Builder().noStore().noCache().build())
-                    .build())
+                            .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                            .url(AppNetConfig.BASEURL + "?version=5&module=forumdisplay&fid=" + fid + "&width=160&height=120&page=" + page + "" + "&submodule=checkpost&smiley=no&convimg=1&mobiletype=Android" + type)
+                            .cacheControl(new CacheControl.Builder().noStore().noCache().build())
+                            .build())
                     .enqueue(new com.squareup.okhttp.Callback() {
                         @Override
                         public void onFailure(Request request, IOException e) {
@@ -987,7 +989,7 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
             } else {
                 ll_ordinary.setVisibility(View.GONE);
             }
-        }else{
+        } else {
             ll_ordinary.setVisibility(View.GONE);
         }
         if (!StringUtil.isEmpty(allowpostactivity)) {
@@ -997,7 +999,7 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
             } else {
                 ll_activity.setVisibility(View.GONE);
             }
-        }else{
+        } else {
             ll_activity.setVisibility(View.GONE);
         }
         if (!StringUtil.isEmpty(allowpostpoll)) {
@@ -1007,12 +1009,12 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
             } else {
                 ll_vote.setVisibility(View.GONE);
             }
-        }else{
+        } else {
             ll_vote.setVisibility(View.GONE);
         }
-        if (h==1){
+        if (h == 1) {
             mPopWindow.setHeight(DensityUtil.dip2px(this, h * 90));
-        }else {
+        } else {
             mPopWindow.setHeight(DensityUtil.dip2px(this, h * 70));
         }
 
@@ -1022,7 +1024,7 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
             } else {
                 ll_debate.setVisibility(View.GONE);
             }
-        }else{
+        } else {
             ll_debate.setVisibility(View.GONE);
         }
         tv_close.setOnClickListener(this);

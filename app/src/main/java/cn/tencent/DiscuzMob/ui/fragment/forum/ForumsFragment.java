@@ -9,17 +9,27 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import cn.tencent.DiscuzMob.base.RedNet;
+import cn.tencent.DiscuzMob.model.EssenceBean;
+import cn.tencent.DiscuzMob.utils.LogUtils;
+import cn.tencent.DiscuzMob.utils.RednetUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.squareup.okhttp.CacheControl;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cn.tencent.DiscuzMob.base.RedNetApp;
 import cn.tencent.DiscuzMob.model.CatlistBean;
@@ -68,57 +78,61 @@ public class ForumsFragment extends SimpleRefreshFragment implements SwipeRefres
     private void getDataFromNe() {
         String cookiepre = CacheUtils.getString(RedNetApp.getInstance(), "cookiepre");
         Log.e("TAG", "cookiepre2=" + cookiepre);
-        OkHttpUtils
-                .get()
-                .addHeader("cookiepre", cookiepre)
-                .url(AppNetConfig.ALLFORUM)
-                .build()
-                .execute(new StringCallback() {
+        String cookiepre_auth = CacheUtils.getString(RedNetApp.getInstance(), "cookiepre_auth");
+        String cookiepre_saltkey = CacheUtils.getString(RedNetApp.getInstance(), "cookiepre_saltkey");
+        RedNet.mHttpClient.newCall(new Request.Builder()
+                        .url(AppNetConfig.ALLFORUM)
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                .enqueue(new com.squareup.okhttp.Callback() {
                     @Override
-                    public void onError(Request request, Exception e) {
-                        mRefreshView.setRefreshing(false);
-                        mTip.setDisplayedChild(0);
-                        Toast.makeText(RedNetApp.getInstance(), "请求失败", Toast.LENGTH_SHORT).show();
+                    public void onFailure(Request request, IOException e) {
+                        getActivity().runOnUiThread(() -> {
+                            mRefreshView.setRefreshing(false);
+                            mTip.setDisplayedChild(0);
+                            Toast.makeText(RedNetApp.getInstance(), "网络请求失败", Toast.LENGTH_SHORT).show();
+                        });
+
                     }
 
                     @Override
-                    public void onResponse(String response) {
-                        AllForumBean allForumBean = null;
-                        if (response != null && !TextUtils.isEmpty(response) && !response.contains("error")) {
-                            try {
-                                if (mRefreshView != null) {
-                                    allForumBean = new Gson().fromJson(response, AllForumBean.class);
-                                    listGroup = allForumBean.getVariables().getCatlist();
-                                    listChild = new ArrayList<List<String>>();
-                                    CacheUtils.putString(RedNetApp.getInstance(), "formhash2", allForumBean.getVariables().getFormhash());
-                                    CacheUtils.putString(RedNetApp.getInstance(), "cookiepre2", allForumBean.getVariables().getCookiepre());
-                                  if(listGroup != null && listGroup.size() >0) {
-                                      imageView.setVisibility(View.GONE);
-                                      for (int i = 0; i < listGroup.size(); i++) {
-                                          List<String> forums = listGroup.get(i).getForums();
-                                          listChild.add(forums);
-                                      }
-                                      final List<AllForumBean.VariablesBean.ForumlistBean> forumlist = allForumBean.getVariables().getForumlist();
-                                      forumsAdapter = new ForumsAdapter(getActivity(), listGroup, listChild, forumlist);
-                                      mListView.setAdapter(forumsAdapter);
-                                  }else {
-                                      imageView.setVisibility(View.VISIBLE);
-                                  }
+                    public void onResponse(Response res) throws IOException {
+                        String response = res.body().string();
+                        getActivity().runOnUiThread(() -> {
+                            mRefreshView.setRefreshing(false);
+                            mTip.setDisplayedChild(0);
+                            AllForumBean allForumBean = null;
+                            if (response != null && !TextUtils.isEmpty(response) && !response.contains("error")) {
+                                try {
+                                    if (mRefreshView != null) {
+                                        allForumBean = new Gson().fromJson(response, AllForumBean.class);
+                                        listGroup = allForumBean.getVariables().getCatlist();
+                                        listChild = new ArrayList<List<String>>();
+                                        CacheUtils.putString(RedNetApp.getInstance(), "formhash2", allForumBean.getVariables().getFormhash());
+                                        CacheUtils.putString(RedNetApp.getInstance(), "cookiepre2", allForumBean.getVariables().getCookiepre());
+                                        if (listGroup != null && listGroup.size() > 0) {
+                                            imageView.setVisibility(View.GONE);
+                                            for (int i = 0; i < listGroup.size(); i++) {
+                                                List<String> forums = listGroup.get(i).getForums();
+                                                listChild.add(forums);
+                                            }
+                                            final List<AllForumBean.VariablesBean.ForumlistBean> forumlist = allForumBean.getVariables().getForumlist();
+                                            forumsAdapter = new ForumsAdapter(getActivity(), listGroup, listChild, forumlist);
+                                            mListView.setAdapter(forumsAdapter);
+                                        } else {
+                                            imageView.setVisibility(View.VISIBLE);
+                                        }
 
 
-                                } else {
-                                    onRefresh();
+                                    } else {
+                                        onRefresh();
+                                    }
+                                } catch (JsonSyntaxException e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
+                            } else {
+                                Toast.makeText(RedNetApp.getInstance(), "请求失败", Toast.LENGTH_SHORT).show();
                             }
-                        } else {
-                            Toast.makeText(RedNetApp.getInstance(), "请求失败", Toast.LENGTH_SHORT).show();
-                        }
-
-                        mRefreshView.setRefreshing(false);
-                        mTip.setDisplayedChild(0);
-//
+                        });
                     }
                 });
     }

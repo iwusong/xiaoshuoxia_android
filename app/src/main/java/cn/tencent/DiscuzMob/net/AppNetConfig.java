@@ -6,7 +6,7 @@ package cn.tencent.DiscuzMob.net;
 
 public class AppNetConfig {
 
-    public static final String BASE_ADDRESS = "https://a.xiaoshuoxia.xyz/"; //【注意】更改BASE_ADDRESS的时候，要搜索全局替换， 因为JS中也有。
+    public static final String BASE_ADDRESS = "http://a.xiaoshuoxia.xyz/"; //【注意】更改BASE_ADDRESS的时候，要搜索全局替换， 因为JS中也有。
     public  String  ChangeUrl=BASE_ADDRESS;
 
     public String getChangeUrl() {
