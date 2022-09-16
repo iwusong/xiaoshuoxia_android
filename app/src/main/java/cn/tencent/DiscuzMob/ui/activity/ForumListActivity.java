@@ -888,7 +888,13 @@ public class ForumListActivity extends BaseActivity implements View.OnClickListe
                                         for (Map.Entry<String, Object> entry : ((JSONObject) groupiconid).entrySet()) {
 
                                             if (!strings.containsKey(entry.getKey())) {
-                                                strings.put(entry.getKey(), entry.getValue().toString());
+                                                if (null != entry.getValue()) {
+                                                    strings.put(entry.getKey(), entry.getValue().toString());
+                                                } else {
+                                                    runOnUiThread(() -> {
+                                                        Toast.makeText(RedNetApp.getInstance(), "groupiconid " +entry + " 空指针", Toast.LENGTH_SHORT).show();
+                                                    });
+                                                }
                                             }
                                         }
                                     }
