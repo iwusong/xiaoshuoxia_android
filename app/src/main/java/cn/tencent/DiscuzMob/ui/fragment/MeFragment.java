@@ -86,7 +86,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener, Sw
     String member_conisbind;
     String member_weixinisbind;
     private String type = null;
-//    private RelativeLayout rl_footprint;
+    //    private RelativeLayout rl_footprint;
     String unionid;
     private Handler handler = new Handler() {
         @Override
@@ -127,6 +127,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener, Sw
     }
 
     RelativeLayout bind_relative;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -185,9 +186,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener, Sw
     private void getUserInfoData() {
         String cookie1 = CacheUtils.getString(RedNetApp.getInstance(), "cookie1");
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookie1)
-                .url(AppNetConfig.USERINFO)
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookie1)
+                        .url(AppNetConfig.USERINFO)
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new com.squareup.okhttp.Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -289,9 +290,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener, Sw
                             progressDialog = new ProgressDialog(getActivity());
                             progressDialog.show();
                             RedNet.mHttpClient.newCall(new Request.Builder()
-                                    .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                                    .url(new StringBuilder(AppNetConfig.BASEURL + "?version=5&android=1&debug=1&module=unbind&type=").append(type).toString())
-                                    .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                                            .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                                            .url(new StringBuilder(AppNetConfig.BASEURL + "?version=5&android=1&debug=1&module=unbind&type=").append(type).toString())
+                                            .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                                     .enqueue(new com.squareup.okhttp.Callback() {
                                         @Override
                                         public void onFailure(Request request, IOException e) {
@@ -413,7 +414,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener, Sw
             mRegisterTime.setText(profile.getRegdate());
             ProfileInfo.GroupBean info = profile.getGroup();
             if (info != null) {
-                mLevel.setText(info.getGrouptitle());
+                mLevel.setText(info.getGrouptitle().replaceAll("<.*?>", ""));
             }
             if (numericals == null) {
                 numericals = new TreeMap<String, ProfileCredit>(
@@ -450,7 +451,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener, Sw
         bind_relative.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BindManagerActivity.ComeIn(getActivity(),variables.getMember_avatar(),formhash);
+                BindManagerActivity.ComeIn(getActivity(), variables.getMember_avatar(), formhash);
             }
         });
     }
