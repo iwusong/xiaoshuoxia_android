@@ -30,6 +30,9 @@ public class PullableWebView extends WebView implements Pullable {
     public boolean canPullUp() {
         float contentHeight = getContentHeight() * getScale();
         Log.i(TAG, "contentHeight-getHeight()=" + (contentHeight - getHeight()) + " getScrollY=" + getScrollY());
-        return getScrollY() + 4 >= (contentHeight - getHeight());
+        boolean flag =  (getScrollY() + 6) >= (contentHeight - getHeight());
+        Log.i(TAG, String.valueOf(flag));
+        return flag;
+
     }
 }

@@ -1187,7 +1187,7 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
                                     }
                                     if (postList != null && postList.length() > 0) {
                                         mLoadAll = postList.length() != 10;
-                                        mPull2RefreshLayout.setPullUpEnable(!mLoadAll);
+                                        mPull2RefreshLayout.setPullUpEnable(true);
                                         Message message = mHandler.obtainMessage();
                                         message.what = SHOW_WEB_LOAD_FINISH;
                                         message.obj = mLoadAll;

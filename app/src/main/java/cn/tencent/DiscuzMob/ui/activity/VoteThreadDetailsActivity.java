@@ -1341,7 +1341,7 @@ public class VoteThreadDetailsActivity extends BaseActivity implements View.OnCl
 
                                     if (postList != null && postList.length() > 0) {
                                         mLoadAll = postList.length() != 10;
-                                        mPull2RefreshLayout.setPullUpEnable(!mLoadAll);
+                                        mPull2RefreshLayout.setPullUpEnable(true);
                                     }
                                 }
                                 mHandler.sendMessage(Message.obtain(mHandler, 1, json.toString()));

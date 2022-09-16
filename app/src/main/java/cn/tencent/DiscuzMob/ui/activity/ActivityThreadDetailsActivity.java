@@ -1393,7 +1393,7 @@ public class ActivityThreadDetailsActivity extends BaseActivity implements View.
                                     }
                                     if (postList != null && postList.length() > 0) {
                                         mLoadAll = postList.length() != 10;
-                                        mPull2RefreshLayout.setPullUpEnable(!mLoadAll);
+                                        mPull2RefreshLayout.setPullUpEnable(true);
                                     }
                                 }
                                 mHandler.sendMessage(Message.obtain(mHandler, 1, json.toString()));
