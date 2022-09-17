@@ -1,6 +1,10 @@
 package cn.tencent.DiscuzMob.ui.activity;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -21,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -35,6 +40,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.tencent.DiscuzMob.utils.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.jingchen.pulltorefresh.PullToRefreshLayout;
@@ -58,6 +64,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cn.tencent.DiscuzMob.R;
 import cn.tencent.DiscuzMob.base.BaseActivity;
@@ -87,10 +95,6 @@ import cn.tencent.DiscuzMob.ui.dialog.CheckSecureDialogActivity;
 import cn.tencent.DiscuzMob.ui.dialog.ImageChooserDialog;
 import cn.tencent.DiscuzMob.ui.dialog.SelectReportActivity;
 import cn.tencent.DiscuzMob.ui.dialog.ShareDialog;
-import cn.tencent.DiscuzMob.utils.BitmapUtils;
-import cn.tencent.DiscuzMob.utils.LogUtils;
-import cn.tencent.DiscuzMob.utils.RedNetPreferences;
-import cn.tencent.DiscuzMob.utils.RednetUtils;
 import cn.tencent.DiscuzMob.utils.cache.CacheUtils;
 
 
@@ -178,7 +182,7 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
                                 if (mWebView != null) {
                                     mWebView.loadUrl("javascript:setImgLoadable(" + (RedNetPreferences.getImageSetting() != 1) + ");");
                                     if (TextUtils.isEmpty(mReplyAnchorId)) {
-                                        Log.i("alan",result);
+
                                         mWebView.loadUrl("javascript:onRefresh(" + result + ");");
                                     } else {
                                         mWebView.loadUrl("javascript:onDiscussSuccess(" + result + "," + String.valueOf(mReplyAnchorId) + ");");
@@ -300,6 +304,7 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
     private final Object mObj = new Object();
     private PullToRefreshLayout mPull2RefreshLayout;
 
+    @SuppressLint("JavascriptInterface")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -336,6 +341,8 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
 
         camera_btn = (ImageView) findViewById(R.id.camera_btn);
         mWebView.setWebViewClient(mWebViewClient);
+        WebView.setWebContentsDebuggingEnabled(true);
+        mWebView.addJavascriptInterface(new WebFunction(mWebView, this), "WebFunction");
         mWebWrapper = new WebViewWrapper(mWebView, mProgressBar, getApplicationContext(), this);
         mPostSubmit = findViewById(R.id.submit);
         mTitle = (TextView) findViewById(R.id.title);
@@ -390,9 +397,9 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
 
     private void getDataFromNet() {
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
-                .url(AppNetConfig.MYFAVTHREAD)
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
+                        .url(AppNetConfig.MYFAVTHREAD)
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -502,14 +509,14 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
                     mProgressBar.setVisibility(View.VISIBLE);
                     if (isCollection == true) {
                         RedNet.mHttpClient.newCall(new Request.Builder()
-                                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
-                                .url(AppNetConfig.UNCOLLECTTHEAD + tid + "&type=thread")
-                                .post(new MultipartBuilder("----kDdwDwoddGegowwdSmoqdaAesgjk")
-                                        .type(MultipartBuilder.FORM)
-                                        .addFormDataPart("formhash", CacheUtils.getString(ThreadDetailsActivity.this, "formhash1"))
-                                        .addFormDataPart("deletesubmit", "true")
-                                        .build())
-                                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
+                                        .url(AppNetConfig.UNCOLLECTTHEAD + tid + "&type=thread")
+                                        .post(new MultipartBuilder("----kDdwDwoddGegowwdSmoqdaAesgjk")
+                                                .type(MultipartBuilder.FORM)
+                                                .addFormDataPart("formhash", CacheUtils.getString(ThreadDetailsActivity.this, "formhash1"))
+                                                .addFormDataPart("deletesubmit", "true")
+                                                .build())
+                                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                                 .enqueue(new Callback() {
                                     @Override
                                     public void onFailure(Request request, IOException e) {
@@ -607,9 +614,9 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
                                 });
                     } else {
                         RedNet.mHttpClient.newCall(new Request.Builder()
-                                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
-                                .url(AppNetConfig.COLLECTTHEAD + tid+"&formhash="+CacheUtils.getString(ThreadDetailsActivity.this, "formhash1"))
-                                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
+                                        .url(AppNetConfig.COLLECTTHEAD + tid + "&formhash=" + CacheUtils.getString(ThreadDetailsActivity.this, "formhash1"))
+                                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                                 .enqueue(new Callback() {
                                     @Override
                                     public void onFailure(Request request, IOException e) {
@@ -894,10 +901,10 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
             }
 
             RedNet.mHttpClient.newCall(new Request.Builder()
-                    .addHeader("Cookie", cookiepre_auth + ";" + vcodeCookie+ ";")
-                    .url(AppNetConfig.COMMENT+"&sechash=" + sechash+"&seccodeverify=" + seccodeverify)
-                    .addHeader("Accept-Language","zh-Hans-CN;q=1, en-CN;q=0.9")
-                    .post(builder.build()).build())
+                            .addHeader("Cookie", cookiepre_auth + ";" + vcodeCookie + ";")
+                            .url(AppNetConfig.COMMENT + "&sechash=" + sechash + "&seccodeverify=" + seccodeverify)
+                            .addHeader("Accept-Language", "zh-Hans-CN;q=1, en-CN;q=0.9")
+                            .post(builder.build()).build())
                     .enqueue(replyCallback);
 
         } else {//评论楼主
@@ -907,17 +914,17 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
                     .add("tid", tid)
                     .add("formhash", formhash)
                     .add("message", message)
-                    .add("mapifrom","android")
+                    .add("mapifrom", "android")
                     .add("allownoticeauthor", "1");
             for (int i = 0; i < aids.size(); i++) {
                 builder.add("attachnew[" + aids.get(i) + "][description]", aids.get(i));
             }
-            LogUtils.i("&sechash=" + sechash+"&seccodeverify=" + seccodeverify+"Cookie", cookiepre_auth + ";" +  CacheUtils.getString(this, "cookiepre_saltkey") + ";");
+            LogUtils.i("&sechash=" + sechash + "&seccodeverify=" + seccodeverify + "Cookie", cookiepre_auth + ";" + CacheUtils.getString(this, "cookiepre_saltkey") + ";");
             RedNet.mHttpClient.newCall(new Request.Builder()
-                    .addHeader("Cookie", cookiepre_auth + ";" + vcodeCookie + ";")
-                    .url(AppNetConfig.COMMENT+"&sechash=" + sechash+"&seccodeverify=" + seccodeverify)
-                    .addHeader("Accept-Language","zh-Hans-CN;q=1, en-CN;q=0.9")
-                    .post(builder.build()).build())
+                            .addHeader("Cookie", cookiepre_auth + ";" + vcodeCookie + ";")
+                            .url(AppNetConfig.COMMENT + "&sechash=" + sechash + "&seccodeverify=" + seccodeverify)
+                            .addHeader("Accept-Language", "zh-Hans-CN;q=1, en-CN;q=0.9")
+                            .post(builder.build()).build())
                     .enqueue(replyCallback);
         }
     }
@@ -1032,9 +1039,9 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
     private void praiseThread() {
 
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                .url(AppNetConfig.PRAISETHREAD + "&tid=" + tid + "&hash=" + CacheUtils.getString(ThreadDetailsActivity.this, "formhash1"))
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                        .url(AppNetConfig.PRAISETHREAD + "&tid=" + tid + "&hash=" + CacheUtils.getString(ThreadDetailsActivity.this, "formhash1"))
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new com.squareup.okhttp.Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -1068,15 +1075,15 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
 
     private void discussUserComment(final String pid) {
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
-                .url(AppNetConfig.QUOTE)
-                .post(new MultipartBuilder("----kDdwDwoddGegowwdSmoqdaAesgjk")
-                        .type(MultipartBuilder.FORM)
-                        .addFormDataPart("tid", tid)
-                        .addFormDataPart("repquote", pid)
-                        .addFormDataPart("mapifrom","android")
-                        .build())
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey)
+                        .url(AppNetConfig.QUOTE)
+                        .post(new MultipartBuilder("----kDdwDwoddGegowwdSmoqdaAesgjk")
+                                .type(MultipartBuilder.FORM)
+                                .addFormDataPart("tid", tid)
+                                .addFormDataPart("repquote", pid)
+                                .addFormDataPart("mapifrom", "android")
+                                .build())
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -1120,9 +1127,9 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
     private void getThreadData(String tid, final int page, final String authorid, boolean onlyHost) {
         Log.e("TAG", "帖子详情url=" + AppNetConfig.BASEURL + "?module=viewthread&tid=" + tid + "&submodule=checkpost&version=5&page=" + page + "&width=360&height=480&checkavatar=1&submodule=checkpost");
         RedNet.mHttpClient.newCall(new Request.Builder()
-                .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
-                .url(AppNetConfig.BASEURL + "?module=viewthread&tid=" + tid + "&submodule=checkpost&version=5&ppp=10&page=" + page + "&width=360&height=480&checkavatar=1&submodule=checkpost")
-                .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                        .addHeader("Cookie", cookiepre_auth + ";" + cookiepre_saltkey + ";")
+                        .url(AppNetConfig.BASEURL + "?module=viewthread&tid=" + tid + "&submodule=checkpost&version=5&ppp=10&page=" + page + "&width=360&height=480&checkavatar=1&submodule=checkpost")
+                        .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
                 .enqueue(new com.squareup.okhttp.Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -1134,7 +1141,7 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
                     public void onResponse(Response response) throws IOException {
                         try {
                             String string = response.body().string();
-                            LogUtils.d("thread="+string);
+
 
                             JSONObject json = new JSONObject(string);
 
@@ -1163,7 +1170,6 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
                                             handleThreadContent(postList, page);
                                             RednetUtils.fixPostList(postList);
                                         }
-                                        LogUtils.d("postList="+postList.toString());
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
@@ -1228,8 +1234,8 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
         } else if (requestCode == SECURE_REQUEST_CODE) {
             seccodeverify = data.getStringExtra("seccodeverify");
 //            vcodeCookie = RedNetPreferences.getVcodeCookie();
-            vcodeCookie = CacheUtils.getString(ThreadDetailsActivity.this,"VcodeCookie");
-            LogUtils.i("seccodeverify =  "+seccodeverify+"   vcodeCookie:"+vcodeCookie);
+            vcodeCookie = CacheUtils.getString(ThreadDetailsActivity.this, "VcodeCookie");
+            LogUtils.i("seccodeverify =  " + seccodeverify + "   vcodeCookie:" + vcodeCookie);
             mHandler.sendEmptyMessage(13);
         } else if (requestCode == ImageChooserDialog.REQUEST_CODE_PICK) {
             if (data != null && data.getData() != null) {
@@ -1299,7 +1305,7 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
     private List<ImageView> imageViews = new ArrayList<>();
 
     private void showPhoto(final String path) {
-        LogUtils.i( "图片URL地址 ："+path);
+        LogUtils.i("图片URL地址 ：" + path);
         final View inflate = View.inflate(ThreadDetailsActivity.this, R.layout.picture_item, null);
         ImageView iv_item = (ImageView) inflate.findViewById(R.id.iv_item);
         final ImageView iv_del = (ImageView) inflate.findViewById(R.id.iv_del);
@@ -1572,6 +1578,119 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
         } else {
             mPull2RefreshLayout.loadmoreFinish(PullToRefreshLayout.FAIL);
         }
+    }
+
+
+    class WebFunction {
+        WebView webview;
+        ThreadDetailsActivity act;
+
+        public WebFunction(WebView view, ThreadDetailsActivity act) {
+            this.webview = view;
+            this.act = act;
+        }
+
+        @JavascriptInterface
+        public void log(String s) {
+            System.out.println(s);
+        }
+
+        @JavascriptInterface
+        public void goBuy1(String tid) {
+            log("WebFunction goBuy1");
+            RedNet.mHttpClient.newCall(new Request.Builder()
+                            .url(AppNetConfig.BASE_ADDRESS + "/forum.php?mod=misc&action=pay&tid=" + tid)
+                            .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                    .enqueue(new com.squareup.okhttp.Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            log("WebFunction goBuy1  onFailure ");
+                            log(e.getMessage());
+                            runOnUiThread(() -> {
+                                ToastUtils.showToast("请求失败");
+                                webview.loadUrl("javascript:hideLoading();");
+                            });
+                        }
+
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            String string = response.body().string();
+                            final Matcher matcher = Pattern.compile("<input type=\"hidden\" name=\"formhash\" value=\".*?\" />").matcher(string);
+                            String hash = "";
+                            String balance = "";
+                            if (matcher.find()) {
+                                String replace = matcher.group().replace("<input type=\"hidden\" name=\"formhash\" value=\"", "");
+                                hash = replace.replace("\" />", "");
+                            }
+                            final Matcher matcher2 = Pattern.compile("购买后余额[\\s\\S]*?</td>").matcher(string);
+                            if (matcher2.find()) {
+                                balance = matcher2.group().replace("购买后余额(灵石)</th>\n<td>", "").replace(" </td>", "");
+                            }
+
+                            String finalHash = hash + "," + tid + "," + balance;
+                            String finalBalance = balance;
+                            runOnUiThread(() -> {
+                                webview.loadUrl("javascript:hideLoading();");
+                                AlertDialog.Builder builder = new AlertDialog.Builder(webview.getContext());
+                                builder.setTitle("提示");
+                                builder.setMessage("是否购买当前主题,购买后剩余" + finalBalance);
+                                builder.setPositiveButton("确定", (dialogInterface, i) -> {
+                                    goBuy2(formhash, tid);
+                                });
+                                builder.setNegativeButton("取消", (dialogInterface, i) -> {
+                                    dialogInterface.dismiss();
+                                });
+                                builder.show();
+                            });
+                        }
+                    });
+        }
+
+        @JavascriptInterface
+        public void goBuy2(String formhash, String tid) {
+            webview.loadUrl("javascript:showLoading();");
+            log("WebFunction goBuy2");
+            FormEncodingBuilder builder = new FormEncodingBuilder();
+            builder.add("formhash", formhash);
+            builder.add("tid", tid);
+            RedNet.mHttpClient.newCall(new Request.Builder()
+                            .url(AppNetConfig.BASE_ADDRESS + "/forum.php?mod=misc&action=pay&paysubmit=yes&infloat=yes&handlekey=payform&inajax=1")
+                            .post(builder.build())
+                            .cacheControl(new CacheControl.Builder().noStore().noCache().build()).build())
+                    .enqueue(new com.squareup.okhttp.Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            log("WebFunction goBuy2  onFailure ");
+                            log(e.getMessage());
+                            runOnUiThread(() -> {
+                                ToastUtils.showToast("请求失败");
+                                webview.loadUrl("javascript:hideLoading();");
+                            });
+                        }
+
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            String string = response.body().string();
+                            final Matcher matcher2 = Pattern.compile("主题购买成功").matcher(string);
+                            if (matcher2.find()) {
+                                runOnUiThread(() -> {
+                                    ToastUtils.showToast("购买成功");
+                                    webview.loadUrl("javascript:hideLoading();");
+                                    act.getThreadData(tid, 1, "", true);
+                                });
+                            } else {
+                                runOnUiThread(() -> {
+                                    ToastUtils.showToast("购买失败");
+                                    webview.loadUrl("javascript:hideLoading();");
+
+                                });
+
+                            }
+                        }
+                    });
+        }
+
+
     }
 
 }
