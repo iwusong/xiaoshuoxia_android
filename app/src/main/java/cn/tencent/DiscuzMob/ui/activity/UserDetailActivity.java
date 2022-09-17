@@ -234,11 +234,11 @@ public class UserDetailActivity extends BaseActivity implements View.OnClickList
 //            mGroupLayout.addView(new ProfileItemView(this, "用户组", info.getGrouptitle()));
 //            mGroupLayout.addView(new ProfileItemView(this, "管理组", info.getGrouptitle()));
             if (info != null) {
-                mLevel.setText(info.getGrouptitle());
+                mLevel.setText(info.getGrouptitle().replaceAll("<.*?>", ""));
                 if (info.getType().equals("member")) {
-                    mGroupLayout.addView(new ProfileItemView(this, "用户组", info.getGrouptitle()), 0);
+                    mGroupLayout.addView(new ProfileItemView(this, "用户组", info.getGrouptitle().replaceAll("<.*?>", "")), 0);
                 } else if (info.getType().equals("system")) {
-                    mGroupLayout.addView(new ProfileItemView(this, "管理组", info.getGrouptitle()), 0);
+                    mGroupLayout.addView(new ProfileItemView(this, "管理组", info.getGrouptitle().replaceAll("<.*?>", "")), 0);
                 }
             }
             if (numericals == null) {
