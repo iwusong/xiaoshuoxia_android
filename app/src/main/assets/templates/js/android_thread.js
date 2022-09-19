@@ -36,6 +36,12 @@ function onRefresh(JSONdata) {
     if (JSONdata === undefined) {
         return;
     }
+    let postlist = JSONdata.Variables.postlist
+    for (let i = 0; i < postlist.length; i++) {
+        postlistElement = postlist[i]
+        postlistElement.message = postlistElement.message.replace(new RegExp("src=\"./data", "gm"), "src=\"http://a.xiaoshuoxia.xyz/data")
+
+    }
 
     var forum = "discuz模板";
     var subject = JSONdata.Variables.thread.subject;
@@ -80,14 +86,15 @@ function onRefresh(JSONdata) {
     if (!textIsNull(JSONdata.Variables.postlist)) {
         $("div.thread_details").attr("id", "rednet_anchor_id_" + JSONdata.Variables.postlist[0].pid);
 
-
         if (JSONdata.Variables.postlist[0].message?.startsWith("付费主题")) {
             let tidnum = JSONdata.Variables.thread.tid
             JSONdata.Variables.postlist[0].message = JSONdata.Variables.postlist[0].message + `<br/><br/><p onclick=goBuy('${tidnum}')  style="color:skyblue;"> 购买 </p>`
             $("div#thread_content").html(JSONdata.Variables.postlist[0].message);
 
         } else {
-            $("div#thread_content").html(JSONdata.Variables.postlist[0].message);
+            let s = JSONdata.Variables.postlist[0].message
+            console.log(s)
+            $("div#thread_content").html(s);
         }
 
         $("div#thread_content img").each(function () {
@@ -319,21 +326,23 @@ function onLoadReply(JSON, isAppend) {
 function onLoadOver() {
 //	enableLoadMore(false);
 }
-function showLoading (){
-    $("#loading").css("display","flex")
+
+function showLoading() {
+    $("#loading").css("display", "flex")
     $('body').css({
-        "overflow-x":"hidden",
-        "overflow-y":"hidden"
+        "overflow-x": "hidden",
+        "overflow-y": "hidden"
     });
 }
 
-function hideLoading (){
+function hideLoading() {
     $("#loading").hide()
     $('body').css({
-        "overflow-x":"auto",
-        "overflow-y":"auto"
+        "overflow-x": "auto",
+        "overflow-y": "auto"
     });
 }
+
 /**2/3G网络是否加载图片, json数据中包含的img标签再判断2/3g加载图前先做默认图地址处理*/
 function setImgLoadable(loadable) {
     if (is2GOr3GLoadImgs != loadable) {
@@ -876,10 +885,10 @@ var TEST_THREAD_JSON = {
 };
 
 function goBuy(s) {
-     if (window.WebFunction){
-         showLoading()
-         window.WebFunction.goBuy1(s)
-     }
+    if (window.WebFunction) {
+        showLoading()
+        window.WebFunction.goBuy1(s)
+    }
 }
 
 function goBuy1show(data) {

@@ -91,3 +91,5 @@ lint/tmp/
 /viewpageindicator/build/
 
 !/gradle/
+/.idea/
+/viewpageindicator/build/
