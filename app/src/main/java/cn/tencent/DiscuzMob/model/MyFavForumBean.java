@@ -234,6 +234,26 @@ public class MyFavForumBean {
         }
 
         public static class ListBean {
+            @Override
+            public String toString() {
+                return "ListBean{" +
+                        "favid='" + favid + '\'' +
+                        ", uid='" + uid + '\'' +
+                        ", id='" + id + '\'' +
+                        ", idtype='" + idtype + '\'' +
+                        ", spaceuid='" + spaceuid + '\'' +
+                        ", title='" + title + '\'' +
+                        ", description='" + description + '\'' +
+                        ", dateline='" + dateline + '\'' +
+                        ", icon='" + icon + '\'' +
+                        ", url='" + url + '\'' +
+                        ", threads='" + threads + '\'' +
+                        ", posts='" + posts + '\'' +
+                        ", todayposts='" + todayposts + '\'' +
+                        ", yesterdayposts='" + yesterdayposts + '\'' +
+                        '}';
+            }
+
             /**
              * favid : 15
              * uid : 7
