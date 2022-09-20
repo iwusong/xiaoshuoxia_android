@@ -149,11 +149,13 @@ public class ForumsFragment extends SimpleRefreshFragment implements SwipeRefres
                                         String response = res.body().string();
                                         String string = responsefv.body().string();
                                         MyFavForumBean myFavForumBean = new Gson().fromJson(string, MyFavForumBean.class);
-                                        List<MyFavForumBean.VariablesBean.ListBean> list = myFavForumBean.getVariables().getList();
                                         List<String> ls = new ArrayList<>();
-                                        for (MyFavForumBean.VariablesBean.ListBean listBean : list) {
+                                        List<MyFavForumBean.VariablesBean.ListBean> list = myFavForumBean.getVariables().getList();
+                                        if (list != null) {
+                                            for (MyFavForumBean.VariablesBean.ListBean listBean : list) {
 
-                                            ls.add(listBean.getId());
+                                                ls.add(listBean.getId());
+                                            }
                                         }
                                         CatlistBean catlistBean = new CatlistBean();
                                         catlistBean.setFid("xxsfav");

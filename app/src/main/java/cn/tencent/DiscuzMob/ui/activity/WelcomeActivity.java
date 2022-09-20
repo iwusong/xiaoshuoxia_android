@@ -1,5 +1,6 @@
 package cn.tencent.DiscuzMob.ui.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,20 +18,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
-
-import com.squareup.okhttp.Request;
-import com.tencent.android.tpush.XGPushClickedResult;
-import com.tencent.android.tpush.XGPushManager;
-import com.umeng.analytics.MobclickAgent;
-import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import cn.tencent.DiscuzMob.R;
 import cn.tencent.DiscuzMob.base.BaseActivity;
 import cn.tencent.DiscuzMob.base.RedNetApp;
@@ -40,6 +27,20 @@ import cn.tencent.DiscuzMob.utils.RednetUtils;
 import cn.tencent.DiscuzMob.utils.cache.CacheUtils;
 import cn.tencent.DiscuzMob.widget.AsyncImageView;
 import cn.tencent.DiscuzMob.widget.pagerindicator.CirclePageIndicator;
+import com.squareup.okhttp.Request;
+import com.tencent.android.tpush.XGPushClickedResult;
+import com.tencent.android.tpush.XGPushManager;
+import com.tencent.bugly.crashreport.CrashReport;
+import com.umeng.analytics.MobclickAgent;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import static android.provider.Settings.Secure;
 
 /**
  * Created by AiWei on 2016/4/19.
@@ -68,6 +69,13 @@ public class WelcomeActivity extends BaseActivity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(getApplicationContext());
+        strategy.setAppReportDelay(1000);   //改为20s
+        @SuppressLint("HardwareIds") String id = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
+        strategy.setDeviceID(id);
+
+        CrashReport.initCrashReport(getApplicationContext(), "ab7bbc4964", true, strategy);
+
         mViewAnimator = (ViewAnimator) findViewById(R.id.va);
         mSplashImage = (ImageView) findViewById(R.id.splash);
         mLabel = (TextView) findViewById(R.id.label);

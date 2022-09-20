@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -52,6 +53,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.tencent.android.tpush.XGPushClickedResult;
 import com.tencent.android.tpush.XGPushManager;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -341,6 +343,14 @@ public class ThreadDetailsActivity extends BaseActivity implements View.OnClickL
 
         camera_btn = (ImageView) findViewById(R.id.camera_btn);
         mWebView.setWebViewClient(mWebViewClient);
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView webView, int progress) {
+                // 增加Javascript异常监控
+                CrashReport.setJavascriptMonitor(webView, true);
+                super.onProgressChanged(webView, progress);
+            }
+        });
         WebView.setWebContentsDebuggingEnabled(true);
         mWebView.addJavascriptInterface(new WebFunction(mWebView, this), "WebFunction");
         mWebWrapper = new WebViewWrapper(mWebView, mProgressBar, getApplicationContext(), this);

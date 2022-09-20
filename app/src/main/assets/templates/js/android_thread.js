@@ -33,163 +33,161 @@ $(document).ready(function () {
  *@param is2GOr3GLoadImgs 2/3G网络是否加载图片
  */
 function onRefresh(JSONdata) {
-    try {
-        if (JSONdata === undefined) {
-            return;
-        }
-        let postlist = JSONdata.Variables.postlist
-        for (let i = 0; i < postlist.length; i++) {
+
+    if (JSONdata === undefined) {
+        return;
+    }
+    let postlist = JSONdata.Variables.postlist
+    for (let i = 0; i < postlist.length; i++) {
             postlistElement = postlist[i]
-            postlistElement.message = postlistElement.message.replace(new RegExp("src=\"./data", "gm"), "src=\"http://a.xiaoshuoxia.xyz/data")
+        postlistElement.message = postlistElement.message.replace(new RegExp("src=\"./data", "gm"), "src=\"http://a.xiaoshuoxia.xyz/data")
 
-        }
+    }
 
-        var forum = "discuz模板";
-        var subject = JSONdata.Variables.thread.subject;
-        var typeid = JSONdata.Variables.thread.typeid;
-        if (!textIsNull(typeid)) {
-            if (!textIsNull(JSONdata.Variables.forum.threadtypes)) {
-                var types = JSONdata.Variables.forum.threadtypes.types;
-                var type = types[typeid];
-                if (!textIsNull(type)) {
-                    $(".header_title").html("<span class='title_type'> [" + type + "] </span>" + subject);
-                } else {
-                    $(".header_title").html(subject);
-                }
+    var forum = "discuz模板";
+    var subject = JSONdata.Variables.thread.subject;
+    var typeid = JSONdata.Variables.thread.typeid;
+    if (!textIsNull(typeid)) {
+        if (!textIsNull(JSONdata.Variables.forum.threadtypes)) {
+            var types = JSONdata.Variables.forum.threadtypes.types;
+            var type = types[typeid];
+            if (!textIsNull(type)) {
+                $(".header_title").html("<span class='title_type'> [" + type + "] </span>" + subject);
             } else {
                 $(".header_title").html(subject);
             }
-
         } else {
             $(".header_title").html(subject);
         }
+
+    } else {
+        $(".header_title").html(subject);
+    }
 //   	$(".header_title").html("<span class='title_type'> ["+type+"] </span>"+subject);
-        $(".forumName").html(JSONdata.Variables.thread.forumnames);
-        $(".content_box .P_share div span:eq(0)").html(JSONdata.Variables.thread.recommend_add);
-        $("#viewsCount").html(format(JSONdata.Variables.thread.views));
-        $("#commentCount").html(JSONdata.Variables.thread.replies);
-        var hasZan = JSONdata.Variables.thread.recommend;
-        if (hasZan == 1) {
-            $(".p_zanBtn").attr("src", "images/zanSmall_icon1.png");
-        } else {
-            $(".p_zanBtn").attr("src", "images/praise.png");
-        }
+    $(".forumName").html(JSONdata.Variables.thread.forumnames);
+    $(".content_box .P_share div span:eq(0)").html(JSONdata.Variables.thread.recommend_add);
+    $("#viewsCount").html(format(JSONdata.Variables.thread.views));
+    $("#commentCount").html(JSONdata.Variables.thread.replies);
+    var hasZan = JSONdata.Variables.thread.recommend;
+    if (hasZan == 1) {
+        $(".p_zanBtn").attr("src", "images/zanSmall_icon1.png");
+    } else {
+        $(".p_zanBtn").attr("src", "images/praise.png");
+    }
 //	$("div.box01 img:first").addClass("without23G").attr({"url":JSONdata.Variables.postlist[0].avatar,"defaultRes":"images/noavatar_small.png"});
-        $("div.box01 label:first").html(JSONdata.Variables.postlist[0].author);
-        $("div.box01 label.p_date").html(JSONdata.Variables.postlist[0].dateline);
-        $("div.box01").click(function () {
-            userInfo(JSONdata.Variables.thread.authorid)
+    $("div.box01 label:first").html(JSONdata.Variables.postlist[0].author);
+    $("div.box01 label.p_date").html(JSONdata.Variables.postlist[0].dateline);
+    $("div.box01").click(function () {
+        userInfo(JSONdata.Variables.thread.authorid)
+    });
+    $("div.box01").click(function () {
+        userInfo(JSONdata.Variables.thread.authorid)
+    });
+
+    if (!textIsNull(JSONdata.Variables.postlist)) {
+        $("div.thread_details").attr("id", "rednet_anchor_id_" + JSONdata.Variables.postlist[0].pid);
+
+        if (JSONdata.Variables.postlist[0].message?.startsWith("付费主题")) {
+            let tidnum = JSONdata.Variables.thread.tid
+            JSONdata.Variables.postlist[0].message = JSONdata.Variables.postlist[0].message + `<br/><br/><p onclick=goBuy('${tidnum}')  style="color:skyblue;"> 购买 </p>`
+            $("div#thread_content").html(JSONdata.Variables.postlist[0].message);
+
+        } else {
+            let s = JSONdata.Variables.postlist[0].message
+            console.log(s)
+            $("div#thread_content").html(s);
+        }
+
+        $("div#thread_content img").each(function () {
+            $(this).click(function () {
+                threadThumbsClick($(this).attr("src"));
+            })
+                .addClass("without23G")
+                .attr({"url": $(this).attr("src"), "defaultRes": "images/picture.png"})
+                .css({"width": "auto", "height": "auto"});
         });
-        $("div.box01").click(function () {
-            userInfo(JSONdata.Variables.thread.authorid)
-        });
 
-        if (!textIsNull(JSONdata.Variables.postlist)) {
-            $("div.thread_details").attr("id", "rednet_anchor_id_" + JSONdata.Variables.postlist[0].pid);
+        if (!textIsNull(JSONdata.Variables.postlist[0].attachments)) { //帖子图片附件
+            var str = "http://wsq.demo.comsenz-service.com/";
+            var aid = "";
+            var strlist = JSONdata.Variables.postlist[0].attachments;
+            $(".thread_details .attachlist").removeAttr("hidden");
+            for (var key in strlist) {
 
-            if (JSONdata.Variables.postlist[0].message?.startsWith("付费主题")) {
-                let tidnum = JSONdata.Variables.thread.tid
-                JSONdata.Variables.postlist[0].message = JSONdata.Variables.postlist[0].message + `<br/><br/><p onclick=goBuy('${tidnum}')  style="color:skyblue;"> 购买 </p>`
-                $("div#thread_content").html(JSONdata.Variables.postlist[0].message);
+                if (strlist[key].ext != "mp3") {
+                    var imgUrl = strlist[key].attachmenturl;
+//                               imgUrl = imgUrl + strlist[key].attachment;
+//                               aid = strlist[key].aid;
+                    $(".thread_details .attachlist ul")
+                        .append("<li><img aid='" + aid + "' style='max-height:80%;' url='" + imgUrl + "'/></li>");
 
-            } else {
-                let s = JSONdata.Variables.postlist[0].message
-                console.log(s)
-                $("div#thread_content").html(s);
+//                               console.log("img="+imgUrl);
+                }
+
             }
+            for (var key in strlist) {
+                if (strlist[key].ext == "mp3") {
+                    var audioUrl = str + strlist[key].url;
+                    audioUrl = audioUrl + strlist[key].attachment;
+                    var audioTime = strlist[key].description;
+                    var timeIndex = audioTime.indexOf("|");
+                    audioTime = audioTime.substring(timeIndex + 1);
+                    var audioStr = "<li>" +
+                        "<audio controls='controls' class='audio' src='" + audioUrl + "'></audio>" +
+                        "<div class='box'>" +
+                        "<span id='audioImg' class='audioPause'></span></div>" +
+                        "<span class='audioTxt'>" + audioTime + "s'</span>" +
+                        "</div></li>";
+                    $(".thread_details .attachlist ul").append(audioStr);
 
-            $("div#thread_content img").each(function () {
+                }
+
+            }
+            /*语音贴操作*/
+            var audioDom = $('.audio');
+            var boxDom = $('.box');
+            var audioObj = $('.audioPause');
+            boxDom.each(function (index, item) {
+
+                setInterval(function () {
+                    if (audioDom[index].ended) {
+                        audioObj.eq(index).removeClass('audioPlay');
+                    }
+                }, 500);
+
+                $(this).click(index, function () {
+
+                    if (audioDom[index].paused) {
+                        audioDom[index].play();
+                        for (var i = 0; i < audioDom.length; i++) {
+                            if (i != index) {
+                                audioDom[i].pause();
+                                audioDom[i].currentTime = 0;
+                                audioObj.eq(i).removeClass('audioPlay');
+                            }
+                        }
+                        $(this).find(".audioPause").addClass('audioPlay');
+                    } else {
+                        audioDom[index].pause();
+                        $(this).find(".audioPause").removeClass('audioPlay');
+                        //初始化音频文件
+                        audioDom[index].currentTime = 0;
+                    }
+                })
+
+            })
+
+            $(".thread_details .attachlist img").each(function () {
                 $(this).click(function () {
                     threadThumbsClick($(this).attr("src"));
                 })
                     .addClass("without23G")
-                    .attr({"url": $(this).attr("src"), "defaultRes": "images/picture.png"})
-                    .css({"width": "auto", "height": "auto"});
+                    .attr({"src": "images/picture.png", "defaultRes": "images/picture.png"});
             });
-
-            if (!textIsNull(JSONdata.Variables.postlist[0].attachments)) { //帖子图片附件
-                var str = "http://wsq.demo.comsenz-service.com/";
-                var aid = "";
-                var strlist = JSONdata.Variables.postlist[0].attachments;
-                $(".thread_details .attachlist").removeAttr("hidden");
-                for (var key in strlist) {
-
-                    if (strlist[key].ext != "mp3") {
-                        var imgUrl = strlist[key].attachmenturl;
-//                               imgUrl = imgUrl + strlist[key].attachment;
-//                               aid = strlist[key].aid;
-                        $(".thread_details .attachlist ul")
-                            .append("<li><img aid='" + aid + "' style='max-height:80%;' url='" + imgUrl + "'/></li>");
-
-//                               console.log("img="+imgUrl);
-                    }
-
-                }
-                for (var key in strlist) {
-                    if (strlist[key].ext == "mp3") {
-                        var audioUrl = str + strlist[key].url;
-                        audioUrl = audioUrl + strlist[key].attachment;
-                        var audioTime = strlist[key].description;
-                        var timeIndex = audioTime.indexOf("|");
-                        audioTime = audioTime.substring(timeIndex + 1);
-                        var audioStr = "<li>" +
-                            "<audio controls='controls' class='audio' src='" + audioUrl + "'></audio>" +
-                            "<div class='box'>" +
-                            "<span id='audioImg' class='audioPause'></span></div>" +
-                            "<span class='audioTxt'>" + audioTime + "s'</span>" +
-                            "</div></li>";
-                        $(".thread_details .attachlist ul").append(audioStr);
-
-                    }
-
-                }
-                /*语音贴操作*/
-                var audioDom = $('.audio');
-                var boxDom = $('.box');
-                var audioObj = $('.audioPause');
-                boxDom.each(function (index, item) {
-
-                    setInterval(function () {
-                        if (audioDom[index].ended) {
-                            audioObj.eq(index).removeClass('audioPlay');
-                        }
-                    }, 500);
-
-                    $(this).click(index, function () {
-
-                        if (audioDom[index].paused) {
-                            audioDom[index].play();
-                            for (var i = 0; i < audioDom.length; i++) {
-                                if (i != index) {
-                                    audioDom[i].pause();
-                                    audioDom[i].currentTime = 0;
-                                    audioObj.eq(i).removeClass('audioPlay');
-                                }
-                            }
-                            $(this).find(".audioPause").addClass('audioPlay');
-                        } else {
-                            audioDom[index].pause();
-                            $(this).find(".audioPause").removeClass('audioPlay');
-                            //初始化音频文件
-                            audioDom[index].currentTime = 0;
-                        }
-                    })
-
-                })
-
-                $(".thread_details .attachlist img").each(function () {
-                    $(this).click(function () {
-                        threadThumbsClick($(this).attr("src"));
-                    })
-                        .addClass("without23G")
-                        .attr({"src": "images/picture.png", "defaultRes": "images/picture.png"});
-                });
-            }
         }
-        onLoadReply(JSONdata, false);
-    } catch (e) {
-        alert(e.toString())
     }
+    onLoadReply(JSONdata, false);
+
 
 }
 
