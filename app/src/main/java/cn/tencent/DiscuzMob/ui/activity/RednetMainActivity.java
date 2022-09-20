@@ -93,7 +93,7 @@ public class RednetMainActivity extends ToolbarActivity implements RadioGroup.On
         mRadioGroup.setOnCheckedChangeListener(this);
         mMe.setOnClickListener(this);
         mFragmentManager = getSupportFragmentManager();
-        mRadioGroup.check(R.id.index);
+        mRadioGroup.check(R.id.forum);
     }
 
 //    @Override
