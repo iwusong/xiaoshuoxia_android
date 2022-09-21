@@ -158,7 +158,7 @@ public class ForumsFragment extends SimpleRefreshFragment implements SwipeRefres
                                             }
                                         }
                                         CatlistBean catlistBean = new CatlistBean();
-                                        catlistBean.setFid("xxsfav");
+                                        catlistBean.setFid("xxsfavonlyone");
                                         catlistBean.setName("已收藏");
                                         catlistBean.setForums(ls);
                                         getActivity().runOnUiThread(() -> {
@@ -170,7 +170,9 @@ public class ForumsFragment extends SimpleRefreshFragment implements SwipeRefres
                                                     if (mRefreshView != null) {
                                                         allForumBean = new Gson().fromJson(response, AllForumBean.class);
                                                         listGroup = allForumBean.getVariables().getCatlist();
-                                                        listGroup.add(0, catlistBean);
+                                                        if (catlistBean.getForums().size() > 0) {
+                                                            listGroup.add(0, catlistBean);
+                                                        }
                                                         listChild = new ArrayList<List<String>>();
                                                         CacheUtils.putString(RedNetApp.getInstance(), "formhash2", allForumBean.getVariables().getFormhash());
                                                         CacheUtils.putString(RedNetApp.getInstance(), "cookiepre2", allForumBean.getVariables().getCookiepre());
